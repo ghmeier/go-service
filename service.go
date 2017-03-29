@@ -18,10 +18,13 @@ err := json.Unmarshal(data, &c)
 Since ServiceGet returns data as a []byte, we can unmarshal it
 to whatever is needed in the calling method. Here, its []*models.Content
 */
-type Response struct {
-	Msg     string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
-	Success bool        `json:"success,omitempty"`
+type Responder interface {
+	Marshal(*h.Response) (Response, error)
+}
+
+type Response interface {
+	Error() error
+	Body() ([]byte, error)
 }
 
 /*Request contains the Method used in sending, the Url to request, and
@@ -39,14 +42,32 @@ type Service interface {
 	Send(*Request, interface{}) error
 }
 
-type http struct {
-	client *h.Client
+type defaultResponder struct{}
+
+type defaultResponse struct {
+	Msg     string      `json:"message,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
+	Success bool        `json:"success,omitempty"`
 }
 
-/*New returns a BaseService with the default http Client*/
+type http struct {
+	client    *h.Client
+	responder Responder
+}
+
+/*New returns a Service with the default http Client*/
 func New() Service {
 	return &http{
-		client: &h.Client{},
+		client:    &h.Client{},
+		responder: &defaultResponder{},
+	}
+}
+
+/*NewCustom returns a BaseService with a custom responder*/
+func NewCustom(r Responder) Service {
+	return &http{
+		client:    &h.Client{},
+		responder: r,
 	}
 }
 
@@ -109,24 +130,45 @@ func (b *http) do(req *h.Request) ([]byte, error) {
 }
 
 func (b *http) handle(resp *h.Response) ([]byte, error) {
-	body, err := ioutil.ReadAll(resp.Body)
+	response, err := b.responder.Marshal(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	var response Response
+	err = response.Error()
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Body()
+}
+
+func (r *defaultResponder) Marshal(res *h.Response) (Response, error) {
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var response defaultResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	if !response.Success {
-		if response.Msg != "" {
-			return nil, fmt.Errorf("%s", response.Msg)
+	return &response, nil
+}
+
+func (r *defaultResponse) Error() error {
+	if !r.Success {
+		if r.Msg != "" {
+			return fmt.Errorf("%s", r.Msg)
 		}
 
-		return nil, fmt.Errorf("ERROR: unknown error")
+		return fmt.Errorf("ERROR: unknown error")
 	}
+	return nil
+}
 
-	return json.Marshal(response.Data)
+func (r *defaultResponse) Body() ([]byte, error) {
+	return json.Marshal(r.Data)
 }

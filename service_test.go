@@ -40,10 +40,7 @@ func TestRunServiceSuite(t *testing.T) {
 func (s *ServiceSuite) TestGetSuccess() {
 	assert := assert.New(s.T())
 
-	data := s.SuccessResponse()
-	temp := make([]string, 1)
-	temp[0] = "one"
-	data.Data = temp
+	data := s.SuccessResponse(nil)
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
@@ -56,20 +53,17 @@ func (s *ServiceSuite) TestGetSuccess() {
 	err := s.s.Send(req, &body)
 
 	assert.NoError(err)
-	assert.NotNil(body)
-	assert.Equal(1, len(body))
-	assert.EqualValues("one", body[0])
 }
 
 func (s *ServiceSuite) TestPostSuccess() {
 	assert := assert.New(s.T())
 
-	data := s.SuccessResponse()
+	data := s.SuccessResponse(nil)
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
-		Method: "GET",
+		Method: "POST",
 		Url:    s.url,
-		Data:   s.SuccessResponse(),
+		Data:   s.SuccessResponse(nil),
 	}
 
 	httpmock.RegisterResponder("POST", s.url, res)
@@ -100,7 +94,7 @@ func (s *ServiceSuite) TestGetError() {
 func (s *ServiceSuite) TestGetJsonParseError() {
 	assert := assert.New(s.T())
 
-	data := "{{}"
+	data := "{"
 	res, _ := httpmock.NewJsonResponder(500, data)
 	req := &Request{
 		Method: "GET",
@@ -118,8 +112,7 @@ func (s *ServiceSuite) TestGetJsonParseError() {
 func (s *ServiceSuite) TestGetInvalidJSON() {
 	assert := assert.New(s.T())
 
-	data := s.SuccessResponse()
-	data.Data = "{{]"
+	data := s.SuccessResponse("{{]")
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
@@ -135,19 +128,20 @@ func (s *ServiceSuite) TestGetInvalidJSON() {
 	assert.Nil(body)
 }
 
-func (s *ServiceSuite) EmptyResponse() *Response {
-	return &Response{}
+func (s *ServiceSuite) EmptyResponse() *defaultResponse {
+	return &defaultResponse{}
 }
 
-func (s *ServiceSuite) SuccessResponse() *Response {
+func (s *ServiceSuite) SuccessResponse(data interface{}) Response {
 	r := s.EmptyResponse()
 	r.Success = true
+	r.Data = data
 	return r
 }
 
-func (s *ServiceSuite) ErrorResponse(msg string) *Response {
+func (s *ServiceSuite) ErrorResponse(err string) Response {
 	r := s.EmptyResponse()
 	r.Success = false
-	r.Msg = msg
+	r.Msg = err
 	return r
 }
