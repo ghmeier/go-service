@@ -8,7 +8,13 @@ import (
 	h "net/http"
 )
 
-/*Response contains relevent data from http server responses
+/*Responder marshals an http.Response into a service.Response that will
+  return either a Body() or Error()*/
+type Responder interface {
+	Marshal(*h.Response) (Response, error)
+}
+
+/*Response contains relevant data from http server responses
 It can be used in conjunction with the following methods like this:
 
 data, _ := ServiceGet(url)
@@ -18,10 +24,6 @@ err := json.Unmarshal(data, &c)
 Since ServiceGet returns data as a []byte, we can unmarshal it
 to whatever is needed in the calling method. Here, its []*models.Content
 */
-type Responder interface {
-	Marshal(*h.Response) (Response, error)
-}
-
 type Response interface {
 	Error() error
 	Body() ([]byte, error)
