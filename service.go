@@ -31,7 +31,7 @@ type Response interface {
   any Data to be sent*/
 type Request struct {
 	Method string
-	Url    string
+	URL    string
 	Data   interface{}
 }
 
@@ -88,9 +88,9 @@ func (b *http) Send(req *Request, i interface{}) error {
 
 	var prepared *h.Request
 	if r != nil {
-		prepared, err = h.NewRequest(req.Method, req.Url, r)
+		prepared, err = h.NewRequest(req.Method, req.URL, r)
 	} else {
-		prepared, err = h.NewRequest(req.Method, req.Url, nil)
+		prepared, err = h.NewRequest(req.Method, req.URL, nil)
 	}
 
 	if err != nil {

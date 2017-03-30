@@ -44,7 +44,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
-		Url:    s.url,
+		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -62,7 +62,7 @@ func (s *ServiceSuite) TestPostSuccess() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "POST",
-		Url:    s.url,
+		URL:    s.url,
 		Data:   s.SuccessResponse(nil),
 	}
 
@@ -80,7 +80,7 @@ func (s *ServiceSuite) TestGetError() {
 	res, _ := httpmock.NewJsonResponder(500, data)
 	req := &Request{
 		Method: "GET",
-		Url:    s.url,
+		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -98,7 +98,7 @@ func (s *ServiceSuite) TestGetJsonParseError() {
 	res, _ := httpmock.NewJsonResponder(500, data)
 	req := &Request{
 		Method: "GET",
-		Url:    s.url,
+		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -116,7 +116,7 @@ func (s *ServiceSuite) TestGetInvalidJSON() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
-		Url:    s.url,
+		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
