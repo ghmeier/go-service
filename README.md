@@ -3,13 +3,13 @@ HTTP service gateway in go.
 
 A simple library to send requests to external services without marshaling JSON yourself.
 
-##Installation
+## Installation
 
 ```
 go get github.com/ghmeier/go-service
 ```
 
-##Examples
+## Examples
 
 Sending one `GET` request:
 ```
@@ -56,11 +56,11 @@ func Post() {
 
 Check out `examples.go` for an example of implementing a service gateway using `go-service`.
 
-##Custom Response
+## Custom Response
 
 If you want to handle responses from services with different repsponse types, implement the `service.Responder` and `service.Response` interfaces.
 
-####Example Custom Responder/Response:
+### Example Custom Responder/Response:
 ```
 type CustomResponder struct{}
 
