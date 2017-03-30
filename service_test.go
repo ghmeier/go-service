@@ -37,6 +37,26 @@ func TestRunServiceSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
+func (s *ServiceSuite) TestNewCustom() {
+	assert := assert.New(s.T())
+
+	service := NewCustom(&defaultResponder{})
+
+	data := s.SuccessResponse(nil)
+	res, _ := httpmock.NewJsonResponder(200, data)
+	req := &Request{
+		Method: "GET",
+		URL:    s.url,
+	}
+
+	httpmock.RegisterResponder("GET", s.url, res)
+
+	var body []string
+	err := service.Send(req, &body)
+
+	assert.NoError(err)
+}
+
 func (s *ServiceSuite) TestGetSuccess() {
 	assert := assert.New(s.T())
 
@@ -91,6 +111,24 @@ func (s *ServiceSuite) TestGetError() {
 	assert.Error(err)
 }
 
+func (s *ServiceSuite) TestGetUnknownError() {
+	assert := assert.New(s.T())
+
+	data := s.ErrorResponse("")
+	res, _ := httpmock.NewJsonResponder(500, data)
+	req := &Request{
+		Method: "GET",
+		URL:    s.url,
+	}
+
+	httpmock.RegisterResponder("GET", s.url, res)
+
+	var i interface{}
+	err := s.s.Send(req, i)
+
+	assert.Error(err)
+}
+
 func (s *ServiceSuite) TestGetJsonParseError() {
 	assert := assert.New(s.T())
 
@@ -116,6 +154,25 @@ func (s *ServiceSuite) TestGetInvalidJSON() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
+		URL:    s.url,
+	}
+
+	httpmock.RegisterResponder("GET", s.url, res)
+
+	var body []string
+	err := s.s.Send(req, &body)
+
+	assert.Error(err)
+	assert.Nil(body)
+}
+
+func (s *ServiceSuite) TestGetInvalidRequest() {
+	assert := assert.New(s.T())
+
+	data := s.SuccessResponse("{{]")
+	res, _ := httpmock.NewJsonResponder(200, data)
+	req := &Request{
+		Method: "INVALID_METHOD",
 		URL:    s.url,
 	}
 
