@@ -11,6 +11,8 @@ go get github.com/ghmeier/go-service
 
 ## Examples
 
+*Note* All fields of the receiveing data type must be exported.
+
 Sending one `GET` request:
 ```
 package example

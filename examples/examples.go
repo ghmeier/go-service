@@ -12,8 +12,8 @@ type MyService struct {
 
 //User is a custom data type with JSON bindings
 type User struct {
-	name  string `json:"name"`
-	email string `json:"email"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 /*NewMyService initializes an instance of MyService with the embedded

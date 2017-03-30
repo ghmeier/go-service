@@ -152,6 +152,7 @@ func (r *defaultResponder) Marshal(res *h.Response) (Response, error) {
 	}
 
 	var response defaultResponse
+	fmt.Println(string(body))
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return nil, err
