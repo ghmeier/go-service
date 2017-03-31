@@ -1,7 +1,10 @@
 # Go Service
-HTTP service gateway in go.
+[![Build Status](https://travis-ci.org/ghmeier/go-service.svg?branch=master)](https://travis-ci.org/ghmeier/go-service)
+[![Coverage Status](https://coveralls.io/repos/github/ghmeier/go-service/badge.svg)](https://coveralls.io/github/ghmeier/go-service)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ghmeier/go-service)](https://goreportcard.com/report/github.com/ghmeier/go-service)
+[![GoDoc](https://godoc.org/github.com/ghmeier/go-service?status.png)](http://godoc.org/github.com/ghmeier/service)
 
-A simple library to send requests to external services without marshaling JSON yourself.
+HTTP service gateway in go. A simple library to send requests to external services without marshaling JSON yourself.
 
 ## Installation
 
