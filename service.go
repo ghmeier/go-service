@@ -32,9 +32,10 @@ type Response interface {
 /*Request contains the Method used in sending, the Url to request, and
   any Data to be sent*/
 type Request struct {
-	Method string
-	URL    string
-	Data   interface{}
+	Method  string
+	URL     string
+	Headers map[string]string
+	Data    interface{}
 }
 
 /*Service has a method that will send a Request and put the response into
@@ -94,6 +95,12 @@ func (b *http) Send(req *Request, i interface{}) error {
 	} else {
 		prepared, err = h.NewRequest(req.Method, req.URL, nil)
 	}
+	prepared.Header.Add("Content-Type", "application/json")
+	if req.Headers != nil {
+		for k, v := range req.Headers {
+			prepared.Header.Set(k, v)
+		}
+	}
 
 	if err != nil {
 		return err
@@ -152,7 +159,6 @@ func (r *defaultResponder) Marshal(res *h.Response) (Response, error) {
 	}
 
 	var response defaultResponse
-	fmt.Println(string(body))
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return nil, err
