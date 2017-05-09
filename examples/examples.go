@@ -19,7 +19,7 @@ type User struct {
 /*NewMyService initializes an instance of MyService with the embedded
   default service*/
 func NewMyService() *MyService {
-	return &MyService{Service: service.New()}
+	return &MyService{Service: service.New("http://some.service.com").Copy("user")}
 }
 
 /*Get sends a request using the service to handle preparing and
@@ -30,8 +30,6 @@ func (m *MyService) Get(name string) (*User, error) {
 	err := m.Send(&service.Request{
 		// run a GET request
 		Method: "GET",
-		// any url that should be hit
-		URL: "http://some.service.com/user?name=" + name,
 	}, &u)
 
 	if err != nil {

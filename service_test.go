@@ -17,7 +17,7 @@ type ServiceSuite struct {
 func (s *ServiceSuite) SetupSuite() {
 	httpmock.Activate()
 	s.url = "http://localhost:8080"
-	s.s = New()
+	s.s = New(s.url)
 }
 
 func (s *ServiceSuite) BeforeTest() {
@@ -40,13 +40,12 @@ func TestRunServiceSuite(t *testing.T) {
 func (s *ServiceSuite) TestNewCustom() {
 	assert := assert.New(s.T())
 
-	service := NewCustom(&defaultResponder{})
+	service := NewCustom(s.url, &defaultResponder{})
 
 	data := s.SuccessResponse(nil)
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -64,7 +63,6 @@ func (s *ServiceSuite) TestGetSuccess() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -82,7 +80,6 @@ func (s *ServiceSuite) TestPostSuccess() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "POST",
-		URL:    s.url,
 		Data:   s.SuccessResponse(nil),
 	}
 
@@ -100,7 +97,6 @@ func (s *ServiceSuite) TestGetError() {
 	res, _ := httpmock.NewJsonResponder(500, data)
 	req := &Request{
 		Method: "GET",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -118,7 +114,6 @@ func (s *ServiceSuite) TestGetUnknownError() {
 	res, _ := httpmock.NewJsonResponder(500, data)
 	req := &Request{
 		Method: "GET",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -136,7 +131,6 @@ func (s *ServiceSuite) TestGetJsonParseError() {
 	res, _ := httpmock.NewJsonResponder(500, data)
 	req := &Request{
 		Method: "GET",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -154,7 +148,6 @@ func (s *ServiceSuite) TestGetInvalidJSON() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "GET",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)
@@ -173,7 +166,6 @@ func (s *ServiceSuite) TestGetInvalidRequest() {
 	res, _ := httpmock.NewJsonResponder(200, data)
 	req := &Request{
 		Method: "INVALID_METHOD",
-		URL:    s.url,
 	}
 
 	httpmock.RegisterResponder("GET", s.url, res)

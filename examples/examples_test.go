@@ -23,7 +23,7 @@ func TestExampleGetSuccess(t *testing.T) {
 	b := &User{Name: "test", Email: "someemail"}
 	res, _ := httpmock.NewJsonResponder(200, mockResponse{Success: true, Data: b})
 
-	httpmock.RegisterResponder("GET", "http://some.service.com/user?name=test", res)
+	httpmock.RegisterResponder("GET", "http://some.service.com/user", res)
 
 	u, err := s.Get("test")
 
@@ -41,7 +41,7 @@ func TestExampleGetError(t *testing.T) {
 
 	res, _ := httpmock.NewJsonResponder(500, &mockResponse{Success: false, Msg: "error"})
 
-	httpmock.RegisterResponder("GET", "http://some.service.com/user?name=test", res)
+	httpmock.RegisterResponder("GET", "http://some.service.com/user", res)
 
 	u, err := s.Get("Test")
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	h "net/http"
+	"strings"
 )
 
 /*Responder marshals an http.Response into a service.Response that will
@@ -33,7 +34,7 @@ type Response interface {
   any Data to be sent*/
 type Request struct {
 	Method  string
-	URL     string
+	Params  map[string]string
 	Headers map[string]string
 	Data    interface{}
 }
@@ -43,6 +44,7 @@ type Request struct {
   pointer type */
 type Service interface {
 	Send(*Request, interface{}) error
+	Copy(...string) Service
 }
 
 type defaultResponder struct{}
@@ -56,21 +58,34 @@ type defaultResponse struct {
 type http struct {
 	client    *h.Client
 	responder Responder
+	url       string
 }
 
-/*New returns a Service with the default http Client*/
-func New() Service {
+/*New returns a Service with the default http Client based at the given url*/
+func New(url string) Service {
 	return &http{
 		client:    &h.Client{},
 		responder: &defaultResponder{},
+		url:       url,
 	}
 }
 
 /*NewCustom returns a BaseService with a custom responder*/
-func NewCustom(r Responder) Service {
+func NewCustom(url string, r Responder) Service {
 	return &http{
 		client:    &h.Client{},
 		responder: r,
+		url:       url,
+	}
+}
+
+/*Copy returns a shallow copy of the Service initialized to a given path*/
+func (b *http) Copy(path ...string) Service {
+
+	return &http{
+		client:    &h.Client{},
+		responder: b.responder,
+		url:       b.url + "/" + strings.Join(path, "/"),
 	}
 }
 
@@ -89,11 +104,18 @@ func (b *http) Send(req *Request, i interface{}) error {
 		r = nil
 	}
 
+	params := "?"
+	if req.Params != nil {
+		for k, v := range req.Params {
+			params = fmt.Sprintf("%s&%s=%s", params, k, v)
+		}
+	}
+
 	var prepared *h.Request
 	if r != nil {
-		prepared, err = h.NewRequest(req.Method, req.URL, r)
+		prepared, err = h.NewRequest(req.Method, b.url+params, r)
 	} else {
-		prepared, err = h.NewRequest(req.Method, req.URL, nil)
+		prepared, err = h.NewRequest(req.Method, b.url+params, nil)
 	}
 	prepared.Header.Add("Content-Type", "application/json")
 	if req.Headers != nil {
